@@ -1,4 +1,4 @@
-package data;
+package data.db;
 
 import exception.DatabaseConnectionException;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package exception;
 
-public class DatabaseConncetionException extends RuntimeException {
-    public DatabaseConncetionException(String message) {
+public class DatabaseConnectionException extends RuntimeException {
+    public DatabaseConnectionException(String message) {
         super(message);
     }
 }
