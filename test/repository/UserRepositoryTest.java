@@ -11,28 +11,32 @@ import java.sql.SQLException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+
 public class UserRepositoryTest {
     private final static UserRepository userRepository = new UserRepository();
-
     @Test
     void testCanCreateTable(){
-        String tableName = "users";
+
         try{
-            ResultSet resultSet = userRepository.createUserTable(tableName);
-                assertNotNull(resultSet);
-            }catch (SQLException ex){
-                throw new TableCreationFailedException(ex.getMessage());
-            }
+            ResultSet resultSet = userRepository.createUsersTable();
+            assertNotNull(resultSet);
+
+        } catch (SQLException e){
+            throw new TableCreationFailedException(e.getMessage());
         }
 
+    }
+
     @Test
-    void testCanSaveUser(){
+    void testCanSaveUser() throws SQLException {
         User user = new User();
         user.setId(1000);
-        user.setName("kuse");
+        user.setName("Papa");
 
         User savedUser = userRepository.save(user);
         assertNotNull(savedUser);
-        assertEquals(1000, )
+        assertEquals(1000, savedUser.getId());
+        assertEquals("Papa", savedUser.getName());
     }
-    }
+
+}
