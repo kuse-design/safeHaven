@@ -11,20 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class DatabaseConnectionManagerTest {
 
     @Test
-    public void testCanConnectToMyAQLDatabase() {
+    void testCanConnectToMySQLDatabase() {
 
-            String username = "root";
-            String password = "Kuse";
-            String url = "jdbc:mysql://localhost:3306/safe_heaven_db?createDatabaseIfNotExist=true";
-
-       try(Connection connection = DatabaseConnectionManager.connectToDatabase(username, password, url)){
+        try (Connection connection = DatabaseConnectionManager.connectToDatabase()) {
             assertNotNull(connection);
-
             assertTrue(connection.isValid(5));
+        } catch (Exception ex) {
+            throw new DatabaseConnectionException(ex.getMessage());
         }
-       catch(SQLException exception){
-            throw new DatabaseConnectionException(exception.getMessage());
-       }
-
     }
 }

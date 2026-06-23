@@ -14,29 +14,36 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class UserRepositoryTest {
     private final static UserRepository userRepository = new UserRepository();
-    @Test
-    void testCanCreateTable(){
 
-        try{
+    @Test
+    void testCanCreateTable() {
+        try {
             ResultSet resultSet = userRepository.createUsersTable();
             assertNotNull(resultSet);
-
-        } catch (SQLException e){
-            throw new TableCreationFailedException(e.getMessage());
+        } catch (SQLException ex) {
+            throw new TableCreationFailedException(ex.getMessage());
         }
-
     }
 
     @Test
     void testCanSaveUser() throws SQLException {
         User user = new User();
-        user.setId(1000);
-        user.setName("Papa");
+        String name = "James";
+        user.setName(name);
 
         User savedUser = userRepository.save(user);
         assertNotNull(savedUser);
-        assertEquals(1000, savedUser.getId());
-        assertEquals("Papa", savedUser.getName());
+        assertEquals(name, savedUser.getName());
     }
 
+
+    @Test
+    void testCanFindUserById(){
+        int id = 1000;
+        User user = userRepository.findById(id);
+        assertNotNull(user);
+        assertEquals(id,user.getId());
+    }
 }
+
+

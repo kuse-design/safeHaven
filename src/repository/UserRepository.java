@@ -1,63 +1,71 @@
 package repository;
 
 import Entity.User;
+import com.mysql.cj.protocol.Resultset;
 import data.db.DatabaseConnectionManager;
+import exception.DatabaseConnectionException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
 
 public class UserRepository {
     public ResultSet createUsersTable() throws SQLException {
-        String username = "root";
-        String password = "Kuse";
-        String url = "jdbc:mysql://localhost:3306/safe_haven_db?createDatabaseIfNotExist=true";
-
-
         String sql = """
-                CREATE TABLE users (
-                    id int AUTO_INCREMENT,
+                CREATE TABLE IF NOT EXISTS users (
+                    id int NOT NULL AUTO_INCREMENT,
                     name varchar(255),
-                    PRIMARY KEY (`id`)
+                    PRIMARY KEY(`id`)
                 );""";
-
-        try (Connection connection = DatabaseConnectionManager.connectToDatabase(username, password, url);){
+        try(Connection connection = DatabaseConnectionManager.connectToDatabase();){
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.execute();
-            return readFromUsersTable( connection);
-
+            return readFromUsersTable(connection);
         }
-
     }
 
-    private ResultSet readFromUsersTable( Connection connection) throws SQLException {
-        String sql = "SELECT * FROM users";
+    private ResultSet readFromUsersTable(Connection connection) throws SQLException {
+        String sql = """
+                SELECT * FROM users
+                ORDER BY id DESC
+                LIMIT 1;
+                """;
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        //preparedStatement.setString(1, tableName);
         return preparedStatement.executeQuery();
     }
 
     public User save(User user) throws SQLException {
-        String username = "root";
-        String password = "Kuse";
-        String url = "jdbc:mysql://localhost:3306/safe_haven_db?createDatabaseIfNotExist=true";
-        try(Connection connection = DatabaseConnectionManager.connectToDatabase(username, password, url)) {
-            String sql = "INSERT into users (id, name) VALUES (?, ?);";
+        try(Connection connection = DatabaseConnectionManager.connectToDatabase();) {
+            String sql = "INSERT into users (id, name) VALUES (null, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, user.getId());
-            preparedStatement.setString(2, user.getName());
+            preparedStatement.setString(1, user.getName());
             preparedStatement.executeUpdate();
+            return extractUserFrom(readFromUsersTable(connection));
+        }
+    }
 
-            ResultSet resultSet = readFromUsersTable(connection);
-            User savedUser = new User();
-            while (resultSet.next()) {
-                if (resultSet.isLast()){
-                    savedUser.setId(resultSet.getInt("id"));
-                    savedUser.setName(resultSet.getString("name"));
-                }
+    private static User extractUserFrom(ResultSet resultSet) throws SQLException {
+        User savedUser = new User();
+        while (resultSet.next()){
+            if (resultSet.isLast()){
+                savedUser.setId(resultSet.getInt("id"));
+                savedUser.setName(resultSet.getString("name"));
             }
-            return savedUser;
+        }
+        return savedUser;
+    }
+
+    public User findById(int id) {
+        try(Connection connection = DatabaseConnectionManager.connectToDatabase()) {
+            String sql = "SELECT * FROM users WHERE id=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            return extractUserFrom(preparedStatement.executeQuery());
+        }catch (SQLException ex){
+            throw new DatabaseConnectionException(ex.getMessage());
         }
     }
 }
