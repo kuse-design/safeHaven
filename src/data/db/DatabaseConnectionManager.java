@@ -9,7 +9,8 @@ import java.sql.SQLException;
 
 public class DatabaseConnectionManager {
 
-    public static Connection connectToDatabase() throws SQLException {
+    public static Connection connectToDatabase()
+            throws SQLException {
         Dotenv dotenv = Dotenv.load();
         String username = dotenv.get("db_username");
         String password = dotenv.get("db_password");
